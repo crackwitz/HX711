@@ -62,32 +62,36 @@ long HX711::read() {
 	return ((uint32_t) data[2] << 16) | ((uint32_t) data[1] << 8) | (uint32_t) data[0];
 }
 
-long HX711::read_average(byte times) {
+float HX711::read_average(byte times) {
 	long sum = 0;
 	for (byte i = 0; i < times; i++) {
 		sum += read();
 	}
-	return sum / times;
+	return (float)sum / times;
 }
 
-double HX711::get_value(byte times) {
+float HX711::get_value(byte times) {
 	return read_average(times) - OFFSET;
 }
 
 float HX711::get_units(byte times) {
-	return get_value(times) / SCALE;
+	return get_value(times) * SCALE;
 }
 
 void HX711::tare(byte times) {
-	double sum = read_average(times);
-	set_offset(sum);
+	float zero = read_average(times);
+	set_offset(zero);
+}
+
+void HX711::tare_ref(float reference, byte times) {
+	set_scale(reference / get_value(times));
 }
 
 void HX711::set_scale(float scale) {
 	SCALE = scale;
 }
 
-void HX711::set_offset(long offset) {
+void HX711::set_offset(float offset) {
 	OFFSET = offset;
 }
 
