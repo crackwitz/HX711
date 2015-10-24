@@ -35,7 +35,7 @@ class HX711
 		void set_gain(byte gain = 128);
 
 		// waits for the chip to be ready and returns a reading
-		long read();
+		int32_t read();
 
 		// returns an average reading; times = how many times to read
 		float read_average(byte times = 16);

@@ -36,11 +36,11 @@ void HX711::set_gain(byte gain) {
 	read();
 }
 
-long HX711::read() {
+int32_t HX711::read() {
 	// wait for the chip to become ready
 	while (!is_ready());
 
-	byte data[3];
+	byte data[4] = {0,0,0,0};
 
 	// pulse the clock pin 24 times to read the data
 	for (byte j = 3; j--;) {
@@ -52,18 +52,19 @@ long HX711::read() {
 	}
 
 	// set the channel and the gain factor for the next reading using the clock pin
-	for (int i = 0; i < GAIN; i++) {
+	for (byte i = 0; i < GAIN; i++) {
 		digitalWrite(PD_SCK, HIGH);
 		digitalWrite(PD_SCK, LOW);
 	}
 
 	data[2] ^= 0x80;
 
-	return ((uint32_t) data[2] << 16) | ((uint32_t) data[1] << 8) | (uint32_t) data[0];
+	return *(int32_t*)data;
+	//return *(int32_t*)data - 0x800000;
 }
 
 float HX711::read_average(byte times) {
-	long sum = 0;
+	int32_t sum = 0;
 	for (byte i = 0; i < times; i++) {
 		sum += read();
 	}
